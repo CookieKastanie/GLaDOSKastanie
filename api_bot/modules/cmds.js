@@ -442,15 +442,29 @@ exports.stopthecount = (params, mess) => {
 /*** GESTION DES SONS EN VOCAL  **/
 /***=========================== **/
 
+const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+
 let tokenSound = true;
 
 const playSound = async (params, mess, file, soundVolume, soundTimestamp = 0) => {
   if(mess.member.voice.channel) {
     /*if (tokenSound)*/{
       tokenSound = false;
-      const connection = await mess.member.voice.channel.join();
-      const dispatcher = connection.play(file, {volume: soundVolume, seek : soundTimestamp});
-      dispatcher.on("finish", () => {connection.disconnect(); tokenSound = true;});
+
+      //const connection = await mess.member.voice.channel.join();
+      //const dispatcher = connection.play(file, {volume: soundVolume, seek : soundTimestamp});
+      //dispatcher.on("finish", () => {connection.disconnect(); tokenSound = true;});
+
+      const connection = await joinVoiceChannel({
+        channelId: mess.member.voice.channel.id,
+        guildId: mess.guild.id,
+        adapterCreator: mess.guild.voiceAdapterCreator
+      });
+      const player = createAudioPlayer();
+      connection.subscribe(player);
+
+      const resource = createAudioResource(file)
+      player.play(resource);
     }
   }
     else {
