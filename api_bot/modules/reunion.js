@@ -7,115 +7,115 @@ let reunions = new Object();
 let isLoad = false;
 
 const loadFromJson = () => {
-  if(!isLoad){
-    try {
-      let data = fs.readFileSync(jsonPath, 'utf8');
-      let r = JSON.parse(data);
+    if(!isLoad){
+        try {
+            let data = fs.readFileSync(jsonPath, 'utf8');
+            let r = JSON.parse(data);
 
-      for (let canal in r) {
-        let opts = r[canal];
-        exports.create(canal, opts);
-      }
+            for (let canal in r) {
+                let opts = r[canal];
+                exports.create(canal, opts);
+            }
 
-      isLoad = true;
-    } catch (e) {
-      console.log(e);
+            isLoad = true;
+        } catch (e) {
+            console.log(e);
+        }
     }
-  }
 }
 
 const saveInJson = () => {
-  fs.writeFile(jsonPath, JSON.stringify(reunions, null, 2), 'utf8', err => {
-    if (err) console.error("JSON reunion write fail");
-  });
+    fs.writeFile(jsonPath, JSON.stringify(reunions, null, 2), 'utf8', err => {
+        if (err) console.error("JSON reunion write fail");
+    });
 }
 
 exports.affiche = () => {
-  console.log(reunions);
+    console.log(reunions);
 }
 
 exports.create = (canal, opts) => {
-  if (reunions[canal]) return false;
-  let date = parseInt(opts.date);
-  if(isNaN(date) || !canal || canal == "") return false;
+    if (reunions[canal]) return false;
+    let date = parseInt(opts.date);
+    if(isNaN(date) || !canal || canal == "") return false;
 
-  date = Math.floor(date / 60000) * 60000;
+    date = Math.floor(date / 60000) * 60000;
 
-  if((date + (5 * 60000)) < Date.now()) return false; // 5 * 60000 -> 5 minutes
+    if((date + (5 * 60000)) < Date.now()) return false; // 5 * 60000 -> 5 minutes
 
-  reunions[canal] = {
-    sujet: opts.sujet || "",
-    description: opts.description || "",
-    date: date,
-    participants: opts.participants || new Array()
-  }
+    reunions[canal] = {
+        sujet: opts.sujet || "",
+        description: opts.description || "",
+        date: date,
+        participants: opts.participants || new Array()
+    }
 
-  saveInJson();
+    saveInJson();
 
-  schedule.scheduleJob(date, () => {
-    exports.fire(canal);
-  });
+    schedule.scheduleJob(date, () => {
+        exports.fire(canal);
+    });
 
-  return true;
+    return true;
 }
 
 exports.fire = canal => {
-  let r = reunions[canal];
+    let r = reunions[canal];
 
-  if (!r) return false;
+    if (!r) return false;
 
-  bot.sayOn(canal, `${r.sujet}, c'est ici que ça ce passe !`);
+    bot.sayOn(canal, `${r.sujet}, c'est ici que ça ce passe !`);
 
-  for (let id of r.participants) {
-    bot.getUserById(id).then(user => {
-      user.send(`C'est l'heure ! RDV sur le canal ${canal}`);
-    }).catch(e => {
-      console.log(e);
-    });
-  }
+    for (let id of r.participants) {
+        bot.getUserById(id).then(user => {
+            user.send(`C'est l'heure ! RDV sur le canal ${canal}`);
+        }).catch(e => {
+            console.log(e);
+        });
+    }
 
-  exports.delete(canal);
-  return true;
+    exports.delete(canal);
+    return true;
 }
 
 exports.delete = canal => {
-  if (!reunions[canal]) return false;
-  delete reunions[canal];
-  saveInJson();
+    if (!reunions[canal]) return false;
+    delete reunions[canal];
+    saveInJson();
 }
 
 exports.existe = canal => {
-  return reunions[canal] != undefined;
+    return reunions[canal] != undefined;
 }
 
 exports.get = canal => {
-  return reunions[canal];
+    return reunions[canal];
 }
 
 exports.addUserOn = (canal, userId) => {
-  let reunion = reunions[canal];
-  if(!reunion) return false;
-  if(reunion.participants.includes(userId)) return false;
+    let reunion = reunions[canal];
+    if(!reunion) return false;
+    if(reunion.participants.includes(userId)) return false;
 
-  reunion.participants.push(userId);
-  saveInJson();
-  return true;
+    reunion.participants.push(userId);
+    saveInJson();
+    return true;
 }
 
 exports.removeUserOn = (canal, userId) => {
-  let reunion = reunions[canal];
-  if(!reunion) return false;
-  if(!reunion.participants.includes(userId)) return false;
+    let reunion = reunions[canal];
+    if(!reunion) return false;
+    if(!reunion.participants.includes(userId)) return false;
 
-  reunion.participants = reunion.participants.filter(e => e != userId);
-  saveInJson();
-  return true;
+    reunion.participants = reunion.participants.filter(e => e != userId);
+    saveInJson();
+    return true;
 }
 
 exports.dateToString = (val) => {
-  let d = new Date(val);
-  //return `${d.toLocaleDateString("fr-FR")} à ${d.toLocaleTimeString("fr-FR")}`;
-  return d.toLocaleString("fr-FR", {timeZone: "Europe/Paris"});
+    let d = new Date(val);
+    //return `${d.toLocaleDateString("fr-FR")} à ${d.toLocaleTimeString("fr-FR")}`;
+    return d.toLocaleString("fr-FR", {timeZone: "Europe/Paris"});
 }
 
 
