@@ -2,18 +2,10 @@ const Discord = require("discord.js");
 
 const Flags = Discord.Intents.FLAGS;
 const bot = new Discord.Client({intents: [
-  //Flags.DIRECT_MESSAGES,
-  ////Flags.DIRECT_MESSAGE_REACTIONS,
-  ////Flags.DIRECT_MESSAGE_TYPING,
   Flags.GUILDS,
-  ////Flags.GUILD_EMOJIS_AND_STICKERS,
-  //Flags.GUILD_INTEGRATIONS,
-  //Flags.GUILD_MEMBERS,
   Flags.GUILD_MESSAGES,
   Flags.GUILD_MESSAGE_REACTIONS,
-  ////Flags.GUILD_MESSAGE_TYPING,
-  //Flags.GUILD_PRESENCES,
-  //Flags.GUILD_VOICE_STATES
+  Flags.GUILD_VOICE_STATES
 ]});
 
 const canaux = new Map();

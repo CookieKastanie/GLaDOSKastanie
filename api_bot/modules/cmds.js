@@ -442,38 +442,44 @@ exports.stopthecount = (params, mess) => {
 /*** GESTION DES SONS EN VOCAL  **/
 /***=========================== **/
 
-const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+const { MusicSubscription, Track } = require('./audio');
 
-let tokenSound = true;
+let musicSubscription = null;
 
 const playSound = async (params, mess, file, soundVolume, soundTimestamp = 0) => {
   if(mess.member.voice.channel) {
-    /*if (tokenSound)*/{
-      tokenSound = false;
-
-      //const connection = await mess.member.voice.channel.join();
-      //const dispatcher = connection.play(file, {volume: soundVolume, seek : soundTimestamp});
-      //dispatcher.on("finish", () => {connection.disconnect(); tokenSound = true;});
-
-      const connection = await joinVoiceChannel({
-        channelId: mess.member.voice.channel.id,
-        guildId: mess.guild.id,
-        adapterCreator: mess.guild.voiceAdapterCreator
-      });
-      const player = createAudioPlayer();
-      connection.subscribe(player);
-
-      const resource = createAudioResource(file)
-      player.play(resource);
+    if(!musicSubscription || musicSubscription.isDestroyed()) {
+      musicSubscription = new MusicSubscription(mess.member.voice.channel);
     }
+
+    const track = await Track.from(file, {
+      onStart() {
+        
+      },
+
+      onFinish() {
+        if(musicSubscription && musicSubscription.queueIsEmpty()) {
+          musicSubscription.destroy();
+          musicSubscription = null;
+        }
+      },
+
+      onError(error) {
+        console.warn(error);
+        bot.sayOn(mess.channel, `Cette source audio n'existe pas !`, 15);
+      },
+    });
+
+    track.setVolume(soundVolume);
+
+    musicSubscription.enqueue(track);
+  } else {
+    bot.sayOn(mess.channel, 'Gros pd, tu doit être connecté à un voice channel pour utiliser cette commande >:(', 15);
   }
-    else {
-      bot.sayOn(mess.channel, 'Gros pd, tu doit être connecté à un voice channel pour utiliser cette commande >:(', 15);
-    }
-}
+} 
 
 exports.somaj = (params, mess) => {
- playSound(params,mess,'./datas/mp3/somaj.mp3',2.0);
+  playSound(params,mess,'./datas/mp3/somaj.mp3',2.0);
 }
 
 exports.bong = (params, mess) => {
@@ -516,7 +522,6 @@ exports.cum = (params, mess) => {
 /***     MUSIQUES  YOUTUBE      **/
 /***=========================== **/
 
-const ytdl = require("ytdl-core");
 const ytSearch = require('youtube-search');
 const ytOpts = {
   maxResults: 1,
@@ -525,39 +530,41 @@ const ytOpts = {
 
 exports.play = (params, mess) => {
   const songName = params.join(' ');
-
-  const options = {
-    filter: 'audioonly',
-    dlChunkSize: 0
+  if(songName.startsWith('http')) {
+    playSound(params, mess, songName, 0.2);
+  } else {
+    ytSearch(songName, ytOpts, (err, results) => {
+      if(err){
+        bot.sayOn(mess.channel, `Youtube c'est de la merde, utilise une url directe`, 10);
+        return console.warn(err);
+      }
+      
+      if(results.length >= 1) {
+        console.log(songName, '->',results[0].link)
+        playSound(params, mess, results[0].link, 0.2);
+      } else {
+        bot.sayOn(mess.channel, `Aucun résultat pour : ${songName}`, 10);
+      }
+    });
   }
 
-  if(songName) {
-    if(songName.startsWith('http')) {
-      const n = params[params.length-1].search("\\?t=");
-      let time = n!==-1?params[params.length-1].substr(n+2,params[params.length-1].length):0;
-      time = time?parseInt(time.match(/\d+/),10):0;
-      playSound(params, mess, ytdl(songName, options), 0.2, time);
-    } else {
-      ytSearch(songName, ytOpts, (err, results) => {
-        if(err){
-          bot.sayOn(mess.channel, `Youtube c'est de la merde, utilise une url directe`, 10);
-          return console.log(err);
-        }
-        
-        if(results.length >= 1) {
-          playSound(params, mess, ytdl(results[0].link, options), 0.2);
-        } else {
-          bot.sayOn(mess.channel, `Aucun résultat pour : ${songName}`, 10);
-        }
-      });
-    }
-  }
+  
+  /*
+  // recherche de timestamp
+  const n = params[params.length-1].search("\\?t=");
+  let time = n!==-1?params[params.length-1].substr(n+2,params[params.length-1].length):0;
+  time = time ? parseInt(time.match(/\d+/), 10) : 0;
+  */
+
+
 }
 
 exports.tg = exports.stop = async (params, mess) => {
-  if(mess.member.voice.channel) {
+  if(mess.member.voice.channel && musicSubscription) {
     try {
-      await mess.member.voice.channel.leave();
-    } catch (error) {}
+      musicSubscription.stop();
+    } catch (error) {
+      console.warn(error);
+    }
   }
 }
