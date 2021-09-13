@@ -24,9 +24,9 @@ exports.cmdChar = cmdChar;
 
 const findCanaux = () => {
     bot.channels.cache.forEach(c => {
-        if(c.type == 'text') {
+        if(c.type == 'GUILD_TEXT') {
             canaux.set(c.name, c);
-        } else if(c.type == 'voice') {
+        } else if(c.type == 'GUILD_VOICE') {
             canauxVocaux.set(c.name, c);
         }
     });
