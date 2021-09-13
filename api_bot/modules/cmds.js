@@ -479,43 +479,43 @@ const playSound = async (params, mess, file, soundVolume, skip = true) => {
 } 
 
 exports.somaj = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/somaj.mp3',2.0);
+    playSound(params,mess,'./datas/mp3/somaj.mp3', 2.0);
 }
 
 exports.bong = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/bong.mp3',0.5);
+    playSound(params,mess,'./datas/mp3/bong.mp3', 0.5);
 }
 
 exports.bang = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/bang.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/bang.mp3', 1.0);
 }
 
 exports.dearsister = exports.bang2 = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/DearSister.wav',0.3);
+    playSound(params,mess,'./datas/mp3/DearSister.wav', 0.3);
 }
 
 exports.bruh2 = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/bruh-sound-effect-2.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/bruh-sound-effect-2.mp3', 1.0);
 }
 
 exports.yooooooooooo = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/yooooooooooo.mp3',0.7);
+    playSound(params,mess,'./datas/mp3/yooooooooooo.mp3', 0.7);
 }
 
 exports.kfc = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/11-tenders-kfc-pour-seulement-695eur-le-mardi.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/11-tenders-kfc-pour-seulement-695eur-le-mardi.mp3', 1.0);
 }
 
 exports.ine = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/ine.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/ine.mp3', 1.0);
 }
 
 exports.wooow = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/wooow.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/wooow.mp3', 1.0);
 }
 
 exports.cum = (params, mess) => {
-    playSound(params,mess,'./datas/mp3/keanu-reeves-says-why-do-you-cum.mp3',1.0);
+    playSound(params,mess,'./datas/mp3/keanu-reeves-says-why-do-you-cum.mp3', 1.0);
 }
 
 /***=========================== **/
