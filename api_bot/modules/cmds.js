@@ -445,7 +445,7 @@ const { MusicSubscription, Track } = require('./audio');
 
 let musicSubscription = null;
 
-const playSound = async (params, mess, file, soundVolume, soundTimestamp = 0) => {
+const playSound = async (params, mess, file, soundVolume, skip = true) => {
     if(mess.member.voice.channel) {
         if(!musicSubscription || musicSubscription.isDestroyed()) {
             musicSubscription = new MusicSubscription(mess.member.voice.channel);
@@ -471,7 +471,8 @@ const playSound = async (params, mess, file, soundVolume, soundTimestamp = 0) =>
 
         track.setVolume(soundVolume);
 
-        musicSubscription.enqueue(track);
+        musicSubscription.enqueue(track, skip);
+        if(skip && musicSubscription.isPlaying()) musicSubscription.skip();
     } else {
         bot.sayOn(mess.channel, 'Gros pd, tu doit être connecté à un voice channel pour utiliser cette commande >:(', 15);
     }
@@ -530,7 +531,7 @@ const ytOpts = {
 exports.play = (params, mess) => {
     const songName = params.join(' ');
     if(songName.startsWith('http')) {
-        playSound(params, mess, songName, 0.2);
+        playSound(params, mess, songName, 0.2, false);
     } else {
         ytSearch(songName, ytOpts, (err, results) => {
             if(err){
@@ -539,7 +540,7 @@ exports.play = (params, mess) => {
             }
             
             if(results.length >= 1) {
-                playSound(params, mess, results[0].link, 0.2);
+                playSound(params, mess, results[0].link, 0.2, false);
             } else {
                 bot.sayOn(mess.channel, `Aucun résultat pour : ${songName}`, 10);
             }
@@ -557,10 +558,12 @@ exports.play = (params, mess) => {
 
 exports.tg = exports.stop = async (params, mess) => {
     if(mess.member.voice.channel && musicSubscription) {
-        try {
-            musicSubscription.stop();
-        } catch (error) {
-            console.warn(error);
-        }
+        musicSubscription.stop();
+    }
+}
+
+exports.skip = (params, mess) => {
+    if(mess.member.voice.channel && musicSubscription) {
+        musicSubscription.skip();
     }
 }

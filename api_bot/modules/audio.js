@@ -227,8 +227,9 @@ class MusicSubscription {
 	 *
 	 * @param track The track to add to the queue
 	 */
-	enqueue(track) {
-		this.queue.push(track);
+	enqueue(track, first = false) {
+		if(first) this.queue.unshift(track)
+		else this.queue.push(track);
 		this.processQueue();
 	}
 
@@ -243,7 +244,11 @@ class MusicSubscription {
 		this.queueLock = true;
 		this.queue = [];
 		this.audioPlayer.stop(true);
-        this.destroy();
+	}
+
+	skip() {
+		// Calling .stop() on an AudioPlayer causes it to transition into the Idle state.
+		this.audioPlayer.stop();
 	}
 
 	/**
@@ -284,6 +289,10 @@ class MusicSubscription {
     isDestroyed() {
         return this.voiceConnection.state.status === VoiceConnectionStatus.Destroyed;
     }
+
+	isPlaying() {
+		return this.voiceConnection.state.status !== VoiceConnectionStatus.Idle;
+	}
 }
 
 exports.MusicSubscription = MusicSubscription;
