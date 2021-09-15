@@ -33,7 +33,7 @@ module.exports = app => {
             .setDescription(`Prévu pour le ${reunion.dateToString(r.date)}`)
             .setFooter("Tapez $present pour signaler votre présence");
 
-            bot.sayOn(data.canal, {embed});
+            bot.sayOn(data.canal, { embeds: [embed] });
             res.sendStatus(200);
         } else {
             res.sendStatus(400);
