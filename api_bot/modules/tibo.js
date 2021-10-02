@@ -1,5 +1,4 @@
 const schedule = require('node-schedule');
-const fs = require("fs");
 const bot = require("./bot");
 
 exports.init = () => {
@@ -29,13 +28,38 @@ exports.init = () => {
 
 }
 
-exports.noCommand = async (params,mess) =>{
+const { MusicSubscription, Track } = require('./audio');
+
+let musicSubscription = null;
+
+exports.noCommand = async (params, mess) =>{
     if(mess.member.voice.channel) {
-        const connection = await mess.member.voice.channel.join();
-        const dispatcher = connection.play("./datas/mp3/aspirateur.mp3", {volume: 0.8});
-        dispatcher.on("finish", () => {connection.disconnect(); tokenSound = true;});
-    }
-    else{
+        if(!musicSubscription || musicSubscription.isDestroyed()) {
+            musicSubscription = new MusicSubscription(mess.member.voice.channel);
+        }
+
+        const track = await Track.from('./datas/mp3/aspirateur.mp3', {
+            onStart() {
+              
+            },
+
+            onFinish() {
+                if(musicSubscription && musicSubscription.queueIsEmpty()) {
+                    musicSubscription.destroy();
+                    musicSubscription = null;
+                }
+            },
+
+            onError(error) {
+                console.warn(error);
+            },
+        });
+
+        track.setVolume(0.8);
+
+        musicSubscription.enqueue(track);
+        if(musicSubscription.isPlaying()) musicSubscription.skip();
+    } else {
         bot.sayOn(mess.channel, 'Je ne peux pas je passe l\'aspirateur', 5);
     }
   }
