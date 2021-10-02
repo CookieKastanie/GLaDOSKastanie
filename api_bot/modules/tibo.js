@@ -62,4 +62,4 @@ exports.noCommand = async (params, mess) =>{
     } else {
         bot.sayOn(mess.channel, 'Je ne peux pas je passe l\'aspirateur', 5);
     }
-  }
+}
