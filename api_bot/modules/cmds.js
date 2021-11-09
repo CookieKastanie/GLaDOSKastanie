@@ -518,6 +518,18 @@ exports.cum = (params, mess) => {
     playSound(params,mess,'./datas/mp3/keanu-reeves-says-why-do-you-cum.mp3', 1.0);
 }
 
+exports.paris = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/paris.mp3', 1.0);
+}
+
+exports.pink = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/pink.mp3', 1.0);
+}
+
+exports.mtcc = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/MTCC.mp3', 1.0);
+}
+
 /***=========================== **/
 /***     MUSIQUES  YOUTUBE      **/
 /***=========================== **/

@@ -99,7 +99,7 @@ exports.start = () => {
             findCanaux();
 
             tikitik.init();
-            tibo.init();
+            //tibo.init();
 
             resolve();
         });
