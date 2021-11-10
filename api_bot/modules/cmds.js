@@ -478,6 +478,36 @@ const playSound = async (params, mess, file, soundVolume, skip = true) => {
     }
 } 
 
+exports.pl = exports.playlist = (params, mess) => {
+    let message = "Il n'y a aucune playlist...";
+
+    if(musicSubscription) {
+        const embed = bot.richEmbed().setColor("#9b59b6");
+
+        let title = "Playlist";
+        
+        if(musicSubscription.getCurrentTrack()) {
+            const infos = musicSubscription.getCurrentTrack().getMetaDatas();
+            title = infos.title;
+            embed.setDescription(`Durée : ${utils.secondsToHms(infos.duration)} (En cours de lecture)`);
+        }
+
+        embed.setTitle(title);
+
+        for(const track of musicSubscription.getQueue()) {
+            const infos = track.getMetaDatas();
+            embed.addField(
+                infos.title,
+                `Durée : ${utils.secondsToHms(infos.duration)}`
+            );
+        }
+        
+        message = { embeds: [embed] };
+    }
+
+    bot.sayOn(mess.channel, message, 30);
+} 
+
 exports.somaj = (params, mess) => {
     playSound(params,mess,'./datas/mp3/somaj.mp3', 2.0);
 }

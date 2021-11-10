@@ -1,5 +1,6 @@
 const { createReadStream } = require('fs');
 const { createAudioResource, demuxProbe } = require('@discordjs/voice');
+const { getInfo } = require('ytdl-core');
 const { raw } = require('youtube-dl-exec');
 const ytdl = raw;
 
@@ -15,8 +16,9 @@ const noop = () => {};
  * queue, it is converted into an AudioResource just in time for playback.
  */
 class Track {
-	constructor(url, onStart, onFinish, onError) {
+	constructor(url, metaDatas, onStart, onFinish, onError) {
 		this.url = url;
+		this.metaDatas = metaDatas;
 		this.onStart = onStart;
 		this.onFinish = onFinish;
 		this.onError = onError;
@@ -26,6 +28,10 @@ class Track {
     setVolume(volume) {
         this.volume = volume;
     }
+
+	getMetaDatas() {
+		return this.metaDatas;
+	}
 
 	/**
 	 * Creates an AudioResource from this Track.
@@ -88,6 +94,22 @@ class Track {
 	 * @returns The created Track
 	 */
 	static async from(url, methods) {
+		let metaDatas = {
+			title: 'Inconnue',
+			author: 'Inconnue',
+			duration: 0
+		};
+		if(url.startsWith('http')) {
+			try {
+				const info = await getInfo(url);
+				metaDatas.title = info.videoDetails.title;
+				metaDatas.author = info.videoDetails.author.name;
+				metaDatas.duration = parseInt(info.videoDetails.lengthSeconds);
+			} catch (error) {}
+		} else {
+			metaDatas.title = 'Source mp3';
+		}
+
 		// The methods are wrapped so that we can ensure that they are only called once.
 		const wrappedMethods = {
 			onStart() {
@@ -106,6 +128,7 @@ class Track {
 
 		return new Track(
 			url,
+			metaDatas,
 			wrappedMethods.onStart,
             wrappedMethods.onFinish,
             wrappedMethods.onError
@@ -149,6 +172,7 @@ class MusicSubscription {
 
 		this.audioPlayer = createAudioPlayer();
 		this.queue = [];
+		this.currentTrack = null;
 
 		this.voiceConnection.on('stateChange', async (_, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
@@ -237,6 +261,14 @@ class MusicSubscription {
         return this.queue.length === 0;
     }
 
+	getQueue() {
+		return this.queue;
+	}
+
+	getCurrentTrack() {
+		return this.currentTrack;
+	}
+
 	/**
 	 * Stops audio playback and empties the queue
 	 */
@@ -270,10 +302,12 @@ class MusicSubscription {
             resource.volume.setVolume(nextTrack.volume);
 			this.audioPlayer.play(resource);
 			this.queueLock = false;
+			this.currentTrack = nextTrack;
 		} catch (error) {
 			// If an error occurred, try the next item of the queue instead
 			nextTrack.onError(error);
 			this.queueLock = false;
+			this.currentTrack = null;
 			return this.processQueue();
 		}
 	}

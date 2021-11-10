@@ -34,21 +34,6 @@ const findCanaux = () => {
 
 ////////////////////////////////////////////////////
 
-/*bot.on('message', (mess) => {
-  let text = mess.content;
-
-  if (text.startsWith(cmdChar)) {
-      mess.delete().then(() => {
-        let params = text.substr(1).split(/\s+/g);
-        let cmdName = params[0];
-        params.shift();
-        let cmd = cmds[cmdName];
-        if(cmd) cmd(params, mess);
-        else sayOn(mess.channel, "```fix\nCommande invalide ("+ cmdName +") -> "+ cmdChar +"help pour afficher les commandes disponibles ```", 15);
-      }).catch(() => {});
-    }
-});*/
-
 bot.on('messageCreate', (mess) => {
     let text = mess.content;
 
@@ -67,7 +52,7 @@ bot.on('messageCreate', (mess) => {
                 else sayOn(mess.channel, "```fix\nCommande invalide```", 5)
             }
 
-        }).catch(() => {});
+        }).catch(console.log);
     }
 });
 
@@ -167,20 +152,19 @@ const sayOn = (canal, message, secs = 0) => {
 
     secs = Math.min(180, secs);
 
+    const deleteCallback = mess => {
+        if(secs) {
+            setTimeout(() => {
+                mess.delete().catch(() => {});
+            }, secs * 1000);
+        }
+    };
+
     if(typeof message == "string"){
-        canal.send(`${message} ${(secs ? " ```fix\nCe message s'auto détruira dans "+ secs +" secondes```" : "")}`).then(mess => {
-            if(secs) {
-                setTimeout(() => {
-                    mess.delete().catch(() => {});
-                }, secs * 1000);
-            }
-        }).catch(e => {
-            console.log(e);
-        });
+        canal.send(`${message} ${(secs ? " ```fix\nCe message s'auto détruira dans "+ secs +" secondes```" : "")}`)
+        .then(deleteCallback).catch(console.log);
     } else {
-        canal.send(message).catch(e => {
-            console.log(e);
-        });
+        canal.send(message).then(deleteCallback).catch(console.log);
     }
 
     return true;
