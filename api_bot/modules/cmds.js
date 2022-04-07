@@ -560,6 +560,14 @@ exports.mtcc = (params, mess) => {
     playSound(params,mess,'./datas/mp3/MTCC.mp3', 1.0);
 }
 
+exports.ununun = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/ununun.mp3', 1.0);
+}
+
+exports.dingdong = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/yeah-baby-ding-uh-dong.mp3', 1.0);
+}
+
 /***=========================== **/
 /***     MUSIQUES  YOUTUBE      **/
 /***=========================== **/
