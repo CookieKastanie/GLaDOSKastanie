@@ -568,6 +568,10 @@ exports.dingdong = (params, mess) => {
     playSound(params,mess,'./datas/mp3/yeah-baby-ding-uh-dong.mp3', 1.0);
 }
 
+exports.polish = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/Polish_woman_sings.mp3', 1.0);
+}
+
 /***=========================== **/
 /***     MUSIQUES  YOUTUBE      **/
 /***=========================== **/
