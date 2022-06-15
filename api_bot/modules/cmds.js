@@ -572,6 +572,10 @@ exports.polish = (params, mess) => {
     playSound(params,mess,'./datas/mp3/Polish_woman_sings.mp3', 1.0);
 }
 
+exports.bite = (params, mess) => {
+    playSound(params,mess,'./datas/mp3/bite-dans-mes-frites.mp3', 1.0);
+}
+
 /***=========================== **/
 /***     MUSIQUES  YOUTUBE      **/
 /***=========================== **/
